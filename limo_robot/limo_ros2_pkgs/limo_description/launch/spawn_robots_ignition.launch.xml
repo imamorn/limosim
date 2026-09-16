@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- gz-sim (Ignition Fortress) port of spawn_robots.launch.xml: same three
+     robots, same poses, pointed at the *_ignition xacros and spawned via
+     spawn_ignition.launch.xml. -->
+<launch>
+
+    <include file="$(find-pkg-share limo_description)/launch/spawn_ignition.launch.xml">
+        <arg name="x_spawn" value="9.051659"/>
+        <arg name="y_spawn" value="-2.695636"/>
+        <arg name="z_spawn" value="0.0"/>
+        <arg name="roll_spawn" value="0.0"/>
+        <arg name="pitch_spawn" value="0.0"/>
+        <arg name="yaw_spawn" value="1.578036"/>
+        <arg name="robot_name" value="limo_dif"/>
+        <arg name="robot_file" value="limo_multi_ignition.xacro"/>
+    </include>
+
+
+    <include file="$(find-pkg-share limo_description)/launch/spawn_ignition.launch.xml">
+        <arg name="x_spawn" value="9.808683"/>
+        <arg name="y_spawn" value="-2.198808"/>
+        <arg name="z_spawn" value="0.0"/>
+        <arg name="roll_spawn" value="0.0"/>
+        <arg name="pitch_spawn" value="0.0"/>
+        <arg name="yaw_spawn" value="1.578036"/>
+        <arg name="robot_name" value="limo_acker"/>
+        <arg name="robot_file" value="limo_multi_acker_ignition.xacro"/>
+    </include>
+
+    <!-- Mirrors limo_acker's real front_left_steering angle onto the
+         cosmetic main_steering_link; see the JointStatePublisher /
+         JointPositionController plugins in limo_multi_acker_ignition.xacro. -->
+    <node pkg="limo_description" exec="main_steering_mirror"
+          name="limo_acker_main_steering_mirror"
+          args="limo_acker/front_left_steering_state limo_acker/main_steering/cmd_pos front_left_steering"/>
+
+
+    <include file="$(find-pkg-share limo_description)/launch/spawn_ignition.launch.xml">
+        <arg name="x_spawn" value="9.122251"/>
+        <arg name="y_spawn" value="-1.597935"/>
+        <arg name="z_spawn" value="0.0"/>
+        <arg name="roll_spawn" value="0.0"/>
+        <arg name="pitch_spawn" value="0.0"/>
+        <arg name="yaw_spawn" value="1.578036"/>
+        <arg name="robot_name" value="limo_omni"/>
+        <arg name="robot_file" value="limo_multi_omni_ignition.xacro"/>
+    </include>
+
+    <!-- Drives limo_omni's wheel joints from cmd_vel; see the JointController
+         plugins in limo_multi_omni_ignition.xacro for why this is needed. -->
+    <node pkg="limo_description" exec="omni_wheel_spin_publisher.py" name="limo_omni_wheel_spin_publisher">
+        <param name="robot_name" value="limo_omni"/>
+        <param name="wheel_radius" value="0.045"/>
+    </node>
+
+</launch>

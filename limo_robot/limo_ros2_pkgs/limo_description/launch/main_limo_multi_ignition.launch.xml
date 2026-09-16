@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- gz-sim (Ignition Fortress) port of main_limo_multi.launch.xml. -->
+<launch>
+
+    <include file="$(find-pkg-share limo_description)/launch/start_world_ignition.launch.py"/>
+    <include file="$(find-pkg-share limo_description)/launch/spawn_robots_ignition.launch.xml"/>
+    <include file="$(find-pkg-share limo_description)/launch/start_bridge_multi_ignition.launch.py"/>
+
+</launch>

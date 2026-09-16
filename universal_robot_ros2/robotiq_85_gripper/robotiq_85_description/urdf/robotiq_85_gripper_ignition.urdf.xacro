@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<robot name="robotiq_85_gripper" xmlns:xacro="http://ros.org/wiki/xacro">
+    <xacro:include filename="$(find robotiq_85_description)/urdf/robotiq_85_gripper_macro_ignition.urdf.xacro" />
+
+    <!-- gz-sim (Ignition) port; the Classic file used libgazebo_ros_control.so
+         here, but the gripper's actual ros2_control hardware interface is
+         declared on the <ros2_control> block pulled in by the macro above
+         (robotiq_85_gripper_gz_ignition.ros2_control.xacro), which needs
+         gz_ros2_control's plugin loaded once for the whole robot. -->
+    <gazebo>
+        <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+            <parameters>$(find robotiq_85_description)/config/gripper_controller.yaml</parameters>
+        </plugin>
+    </gazebo>
+
+    <link name="world"/>
+    <joint name="world_fixed" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <parent link="world"/>
+        <child link="gripper_root_link"/>
+    </joint>
+
+    <link name="gripper_root_link">
+        <visual>
+            <origin xyz="0 0 0.5" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.1 0.1 1.0"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.5" rpy="0 0 0"/>
+            <geometry>
+                <box size="0.1 0.1 1.0"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="1e2" />
+            <origin xyz="0.0 0.0 0.0" />
+            <inertia ixx = "0.000001" ixy = "0.000000" ixz = "0.000000"
+                     iyx = "0.000000" iyy = "0.000001" iyz = "0.000000"
+                     izx = "0.000000" izy = "0.000000" izz = "0.000001" />
+        </inertial>
+    </link>
+
+    <xacro:robotiq_85_gripper prefix="" parent="gripper_root_link" >
+        <origin xyz="0.05 0 0.85" rpy="0 0 0"/>
+    </xacro:robotiq_85_gripper>
+</robot>

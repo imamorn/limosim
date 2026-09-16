@@ -1,0 +1,355 @@
+<?xml version="1.0"?>
+
+<!-- gz-sim (Ignition Fortress) port of limo_multi_omni.xacro. See
+     limo_multi_ignition.xacro / limo_four_diff_ignition.xacro for the full
+     Classic -> gz-sim rationale of each sensor conversion. The Classic
+     libgazebo_ros_planar_move.so plugin (non-physical holonomic drive,
+     directly sets body velocity from cmd_vel and publishes odom) has no
+     single gz-sim equivalent; it is split into two native systems:
+     VelocityControl (applies a Twist to base_link's velocity) and
+     OdometryPublisher (publishes odom + tf from the resulting link pose). -->
+<robot name="limo_four_diff" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:arg name="robot_name" default="box_bot"/>
+    <xacro:property name="general_robot_name" value="$(arg robot_name)"/>
+
+
+    <xacro:include filename="$(find limo_description)/urdf/limo_xacro_omni.xacro" />
+
+    <!-- Variables -->
+    <xacro:property name="M_PI" value="3.14159"/>
+
+    <!-- Vehicle Geometries -->
+    <xacro:property name="base_x_size" value="0.13" />
+    <xacro:property name="base_y_size" value="0.12" />
+    <xacro:property name="base_z_size" value="0.1" />
+
+    <xacro:property name="wheelbase" value="0.2"/>
+    <xacro:property name="track" value="0.13"/>
+    <xacro:property name="wheel_vertical_offset" value="-0.10" />
+    <xacro:property name="base_mass" value="2.1557"/>
+
+
+    <xacro:property name="wheel_length" value="0.001" />
+    <xacro:property name="wheel_radius" value="0.045" />
+  <link name="base_footprint"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0.0 0.0 0.15" rpy="0 0 0"/>
+  </joint>
+    <!-- Base link -->
+    <link name="base_link">
+        <visual>
+            <origin xyz="0 0 -0.15" rpy="0 0 1.57" />
+            <geometry>
+                <mesh filename="package://limo_description/meshes/limo_optimal.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+              <box size="${base_x_size} ${base_y_size} ${base_z_size}"/>
+          </geometry>
+        </collision>
+    </link>
+
+    <link name="inertial_link">
+        <inertial>
+            <origin xyz="0.0 0.0 0.0" />
+            <mass value="${base_mass}" />
+            <inertia ixx="0.0043832566666666675" ixy="0" ixz="0"
+                     iyy="0.004832360833333334" iyz="0"
+                     izz="0.005622784166666667" />
+        </inertial>
+    </link>
+
+    <joint name="inertial_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <parent link="base_link" />
+        <child link="inertial_link" />
+    </joint>
+
+    <xacro:limo_laser parent_prefix="base_link" frame_prefix="laser">
+        <origin xyz="0.103 0 -0.034" rpy="0 0 0"/>
+    </xacro:limo_laser>
+
+    <xacro:limo_depth_camera parent_prefix="base_link" frame_prefix="depth_camera">
+        <origin xyz="0.084 0 0.026" rpy="0 0 0"/>
+    </xacro:limo_depth_camera>
+
+    <xacro:limo_imu parent_prefix="base_link" frame_prefix="imu">
+        <origin xyz="0.0 0 -0.1" rpy="0 0 0"/>
+    </xacro:limo_imu>
+
+    <xacro:limo_wheel parent_prefix="base_link" wheel_prefix="front_left" reflect="1" fixed_on="false">
+        <origin xyz="${wheelbase/2} ${track/2} ${wheel_vertical_offset}" rpy="0 0  0" />
+    </xacro:limo_wheel>
+
+    <xacro:limo_wheel parent_prefix="base_link" wheel_prefix="front_right" reflect="-1" fixed_on="false">
+        <origin xyz="${wheelbase/2} ${-track/2} ${wheel_vertical_offset}" rpy="${M_PI} 0 0" />
+    </xacro:limo_wheel>
+
+    <xacro:limo_wheel parent_prefix="base_link" wheel_prefix="rear_left" reflect="1" fixed_on="false">
+        <origin xyz="${-wheelbase/2} ${track/2} ${wheel_vertical_offset}" rpy="0 0 0" />
+    </xacro:limo_wheel>
+
+    <xacro:limo_wheel parent_prefix="base_link" wheel_prefix="rear_right" reflect="-1" fixed_on="false">
+        <origin xyz="${-wheelbase/2} ${-track/2} ${wheel_vertical_offset}" rpy="${M_PI} 0 0" />
+    </xacro:limo_wheel>
+
+
+    <gazebo reference="imu_link">
+    <gravity>true</gravity>
+    <sensor name="twr_imu_$(arg robot_name)" type="imu">
+      <always_on>true</always_on>
+      <update_rate>100</update_rate>
+      <visualize>true</visualize>
+      <topic>$(arg robot_name)/imu</topic>
+      <imu>
+        <orientation>
+          <x>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-3</stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-3</stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-3</stddev>
+            </noise>
+          </z>
+        </orientation>
+        <angular_velocity>
+          <x>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+            </noise>
+          </z>
+        </angular_velocity>
+        <linear_acceleration>
+          <x>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+            </noise>
+          </z>
+        </linear_acceleration>
+      </imu>
+    </sensor>
+</gazebo>
+<gazebo reference="laser_link">
+    <sensor name="laser_$(arg robot_name)" type="gpu_lidar">
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <update_rate>10</update_rate>
+      <topic>$(arg robot_name)/scan</topic>
+      <lidar>
+        <scan>
+          <horizontal>
+            <samples>120</samples>
+            <resolution>1.000000</resolution>
+            <min_angle>-3.14159</min_angle>
+            <max_angle>3.14159</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.3</min>
+          <max>15.0</max>
+          <resolution>0.015</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </lidar>
+    </sensor>
+  </gazebo>
+
+    <gazebo reference="front_left_wheel_link">
+        <mu1>0</mu1>
+        <mu2>0</mu2>
+        <kp>10000000.0</kp>
+        <kd>1.0</kd>
+        <minDepth>0.01</minDepth>
+        <fdir1>1 0 0</fdir1>
+        <maxContacts value="4"/>
+    </gazebo>
+    <gazebo reference="front_right_wheel_link">
+        <mu1>0</mu1>
+        <mu2>0</mu2>
+        <kp>10000000.0</kp>
+        <kd>1.0</kd>
+        <minDepth>0.01</minDepth>
+        <fdir1>1 0 0</fdir1>
+        <maxContacts value="4"/>
+    </gazebo>
+    <gazebo reference="rear_left_wheel_link">
+        <mu1>0</mu1>
+        <mu2>0</mu2>
+        <kp>10000000.0</kp>
+        <kd>1.0</kd>
+        <minDepth>0.01</minDepth>
+        <fdir1>1 0 0</fdir1>
+        <maxContacts value="4"/>
+    </gazebo>
+    <gazebo reference="rear_right_wheel_link">
+        <mu1>0</mu1>
+        <mu2>0</mu2>
+        <kp>10000000.0</kp>
+        <kd>1.0</kd>
+        <minDepth>0.01</minDepth>
+        <fdir1>1 0 0</fdir1>
+        <maxContacts value="4"/>
+    </gazebo>
+
+    <gazebo reference="center_left_wheel_link">
+        <mu1>0.0001</mu1>
+        <mu2>0.0001</mu2>
+        <kp>10000000.0</kp>
+        <kd>1.0</kd>
+        <minDepth>0.01</minDepth>
+        <fdir1>1 0 0</fdir1>
+        <maxContacts value="4"/>
+    </gazebo>
+    <gazebo reference="center_right_wheel_link">
+        <mu1>0.0001</mu1>
+        <mu2>0.0001</mu2>
+        <kp>10000000.0</kp>
+        <kd>1.0</kd>
+        <minDepth>0.01</minDepth>
+        <fdir1>1 0 0</fdir1>
+        <maxContacts value="4"/>
+    </gazebo>
+
+
+    <!-- gz-sim port of libgazebo_ros_planar_move.so: VelocityControl reads
+         Twist off <topic> and sets base_link's planar body velocity
+         directly (non-physical, same as the Classic plugin); unlike
+         DiffDrive/AckermannSteering, this system DOES support an explicit
+         <topic> override, so it is namespaced the same way as the other
+         two robots' cmd_vel for a consistent /<robot_name>/cmd_vel address. -->
+    <gazebo>
+      <plugin filename="ignition-gazebo-velocity-control-system" name="gz::sim::systems::VelocityControl">
+        <topic>$(arg robot_name)/cmd_vel</topic>
+        <link_name>base_footprint</link_name>
+      </plugin>
+    </gazebo>
+
+    <!-- Companion system: publishes odom + tf for base_link, since
+         VelocityControl itself does not. -->
+    <gazebo>
+      <plugin filename="ignition-gazebo-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
+        <odom_frame>odom</odom_frame>
+        <robot_base_frame>base_footprint</robot_base_frame>
+        <dimensions>3</dimensions>
+        <odom_publish_frequency>100</odom_publish_frequency>
+        <odom_topic>$(arg robot_name)/odom</odom_topic>
+        <tf_topic>$(arg robot_name)/tf</tf_topic>
+      </plugin>
+    </gazebo>
+
+    <!-- VelocityControl moves the chassis kinematically and never touches
+         these wheel joints, so they'd otherwise sit undriven (only ever
+         perturbed by incidental ground contact, with nothing to make them
+         spin with motion or settle at rest). One JointController per wheel
+         gives them a commanded velocity so they visually track motion;
+         omni_wheel_spin_publisher.py (spawned alongside this robot) is the
+         node that converts cmd_vel into each of these <topic>s. -->
+    <gazebo>
+      <plugin filename="ignition-gazebo-joint-controller-system" name="gz::sim::systems::JointController">
+        <joint_name>front_left_wheel</joint_name>
+        <topic>$(arg robot_name)/front_left_wheel/cmd_vel</topic>
+        <initial_velocity>0</initial_velocity>
+      </plugin>
+    </gazebo>
+    <gazebo>
+      <plugin filename="ignition-gazebo-joint-controller-system" name="gz::sim::systems::JointController">
+        <joint_name>front_right_wheel</joint_name>
+        <topic>$(arg robot_name)/front_right_wheel/cmd_vel</topic>
+        <initial_velocity>0</initial_velocity>
+      </plugin>
+    </gazebo>
+    <gazebo>
+      <plugin filename="ignition-gazebo-joint-controller-system" name="gz::sim::systems::JointController">
+        <joint_name>rear_left_wheel</joint_name>
+        <topic>$(arg robot_name)/rear_left_wheel/cmd_vel</topic>
+        <initial_velocity>0</initial_velocity>
+      </plugin>
+    </gazebo>
+    <gazebo>
+      <plugin filename="ignition-gazebo-joint-controller-system" name="gz::sim::systems::JointController">
+        <joint_name>rear_right_wheel</joint_name>
+        <topic>$(arg robot_name)/rear_right_wheel/cmd_vel</topic>
+        <initial_velocity>0</initial_velocity>
+      </plugin>
+    </gazebo>
+
+
+    <link name="camera_depth_optical_frame"/>
+
+    <joint name="camera_depth_optical_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
+      <parent link="depth_camera_link" />
+      <child link="camera_depth_optical_frame" />
+    </joint>
+
+<gazebo reference="depth_camera_link">
+          <sensor name="sensor_camera_$(arg robot_name)" type="rgbd_camera">
+            <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+            <always_on>1</always_on>
+            <update_rate>10</update_rate>
+            <visualize>1</visualize>
+            <topic>$(arg robot_name)/limo_camera</topic>
+
+            <camera name="limo_camera">
+              <image>
+                <format>R8G8B8</format>
+                <width>400</width>
+                <height>400</height>
+              </image>
+              <clip>
+                <near>0.01</near>
+                <far>10.0</far>
+              </clip>
+              <optical_frame_id>depth_camera_link</optical_frame_id>
+            </camera>
+        </sensor>
+          </gazebo>
+
+
+</robot>

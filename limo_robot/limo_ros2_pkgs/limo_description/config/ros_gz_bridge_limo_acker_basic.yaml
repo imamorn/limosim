@@ -1,0 +1,93 @@
+# ros_gz_bridge config for limo_four_acker_ignition.xacro (single, non-namespaced
+# robot, entity name "limo_description" per gazebo_models_diff_mod_basics_acker_ignition.launch.py)
+# consumed by: ros2 run ros_gz_bridge parameter_bridge --ros-args -p config_file:=<this file>
+#
+# ROS-side topic names here are mostly picked to match main_limo_basic.launch.xml's
+# Classic pipeline (limo_four_acker.xacro's gazebo_ros_ackermann_drive and
+# camera/imu/lidar plugins), so nodes written against the Classic topics work
+# unchanged against this Ignition port. cmd_vel, odom, and steerangle are the
+# deliberate exceptions: they're exposed as plain "/cmd_vel", "/odom", and
+# "/steerangle" rather than Classic's "/demo/cmd_demo", "/demo/odom_demo",
+# and "/demo/steerangle_demo".
+#
+# AckermannSteering has no <topic> override for its cmd_vel subscribe in this
+# gz-sim6 build (see limo_four_acker_ignition.xacro), so it always listens on
+# the entity-scoped default "/model/<name>/cmd_vel" -- unlike DiffDrive in
+# ros_gz_bridge_limo_diff.yaml, which does support an explicit <topic>.
+#
+# Known gap: Classic's plugin also has <publish_distance>true</publish_distance>,
+# exposed as "/demo/distance_demo". gz-sim's AckermannSteering system has no
+# distance-traveled output at all, so there is nothing to bridge it from --
+# unlike steerangle (below), this one can't be recovered without a new
+# odometry-integrating node, which is out of scope here.
+#
+# main_steering_link's angle-mirroring topics (front_left_steering_state,
+# main_steering/cmd_pos) are plain gz-transport, not bridged to ROS -- see
+# main_steering_mirror.cpp, which is what actually publishes "/steerangle",
+# mirroring Classic's <publish_steerangle> (there exposed as
+# "/demo/steerangle_demo").
+#
+# The Classic depth-camera plugin (libgazebo_ros_camera.so) publishes camera
+# color and depth camera_info on two separate topics; gz-sim's single
+# rgbd_camera sensor only produces one shared camera_info, so
+# "/limo/limo_camera/camera_info_depth" has no source to bridge from either.
+
+- ros_topic_name: "/clock"
+  gz_topic_name: "/clock"
+  ros_type_name: "rosgraph_msgs/msg/Clock"
+  gz_type_name: "gz.msgs.Clock"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/cmd_vel"
+  gz_topic_name: "/model/limo_description/cmd_vel"
+  ros_type_name: "geometry_msgs/msg/Twist"
+  gz_type_name: "gz.msgs.Twist"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/odom"
+  gz_topic_name: "/odom"
+  ros_type_name: "nav_msgs/msg/Odometry"
+  gz_type_name: "gz.msgs.Odometry"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/tf"
+  gz_topic_name: "/tf"
+  ros_type_name: "tf2_msgs/msg/TFMessage"
+  gz_type_name: "gz.msgs.Pose_V"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/scan"
+  gz_topic_name: "/scan"
+  ros_type_name: "sensor_msgs/msg/LaserScan"
+  gz_type_name: "gz.msgs.LaserScan"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/imu"
+  gz_topic_name: "/imu"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "gz.msgs.IMU"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo/limo_camera/image"
+  gz_topic_name: "/limo_camera/image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo/limo_camera/depth/camera_image_depth"
+  gz_topic_name: "/limo_camera/depth_image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo/limo_camera/camera_info_raw"
+  gz_topic_name: "/limo_camera/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo/limo_camera/camera_points"
+  gz_topic_name: "/limo_camera/points"
+  ros_type_name: "sensor_msgs/msg/PointCloud2"
+  gz_type_name: "gz.msgs.PointCloudPacked"
+  direction: GZ_TO_ROS

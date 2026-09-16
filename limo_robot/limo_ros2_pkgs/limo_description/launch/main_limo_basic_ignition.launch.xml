@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- gz-sim (Ignition Fortress) port of main_limo_basic.launch.xml. Uses the
+     same ROS topics as the Classic pipeline (see
+     ros_gz_bridge_limo_acker_basic.yaml for the mapping and its one known
+     gap: "/demo/distance_demo" has no gz-sim source to bridge from). -->
+<launch>
+    <!-- External Argument Declarations (if needed) -->
+    <arg name="use_sim_time" default="true" description="Whether to use simulation time"/>
+    <arg name="world" default="$(find-pkg-share limo_description)/worlds/basic_ignition.world" description="Which world file to load"/>
+    <arg name="urdf_model" default="$(find-pkg-share limo_description)/urdf/limo_four_acker_ignition.xacro" description="Which robot model we use"/>
+
+    <!-- Including another launch file with arguments -->
+    <include file="$(find-pkg-share limo_description)/launch/gazebo_models_diff_mod_basics_acker_ignition.launch.py">
+        <!-- Pass arguments to the included launch file -->
+        <arg name="use_sim_time" value="$(var use_sim_time)"/>
+        <arg name="world" value="$(var world)"/>
+        <arg name="urdf_model" value="$(var urdf_model)"/>
+    </include>
+</launch>

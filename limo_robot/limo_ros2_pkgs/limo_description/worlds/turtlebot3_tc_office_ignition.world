@@ -1,0 +1,83 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <!-- gz-sim (Ignition) port of turtlebot3_tc_office.world; see
+       turtlebot3_tc_office_grasp_ignition.world for the full rationale
+       (model://sun replaced with an inline light, required gz-sim server
+       systems declared explicitly). -->
+
+  <world name="default">
+
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <plugin filename="ignition-gazebo-physics-system" name="gz::sim::systems::Physics">
+    </plugin>
+    <plugin filename="ignition-gazebo-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="ignition-gazebo-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster">
+    </plugin>
+    <plugin filename="ignition-gazebo-user-commands-system" name="gz::sim::systems::UserCommands">
+    </plugin>
+    <plugin filename="ignition-gazebo-imu-system" name="gz::sim::systems::Imu">
+    </plugin>
+
+    <include>
+      <uri>model://ground_plane_invisible</uri>
+    </include>
+
+    <!-- Global light source (was model://sun) -->
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <include>
+      <uri>model://office</uri>
+       <pose>8.184478 2.483618 0.019716 0 0 0</pose>
+    </include>
+
+
+        <light name='user_point_light_1' type='point'>
+      <pose>0.0 -8.0 5.0 0 -0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>20</range>
+        <constant>0.2</constant>
+        <linear>0.06</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+
+
+        <light name='user_point_light_2' type='point'>
+      <pose>0.0 8.0 5.0 0 -0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>20</range>
+        <constant>0.2</constant>
+        <linear>0.06</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+  </world>
+</sdf>

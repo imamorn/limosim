@@ -1,0 +1,213 @@
+# ros_gz_bridge config for the multi-robot ignition world spawned by
+# spawn_robots_ignition.launch.xml (limo_dif: limo_multi_ignition.xacro,
+# limo_acker: limo_multi_acker_ignition.xacro, limo_omni: limo_multi_omni_ignition.xacro).
+# consumed by: ros2 run ros_gz_bridge parameter_bridge --ros-args -p config_file:=<this file>
+#
+# cmd_vel for limo_dif/limo_acker is NOT namespaced in the xacro (the
+# DiffDrive/AckermannSteering systems in this gz-sim build have no <topic>
+# override for it) -- it is always published on the entity-scoped default
+# "/model/<name>/cmd_vel", where <name> is the -name given at spawn time
+# (== robot_name). limo_omni uses VelocityControl, which does support an
+# explicit <topic>, so it is namespaced the same as everything else.
+
+- ros_topic_name: "/clock"
+  gz_topic_name: "/clock"
+  ros_type_name: "rosgraph_msgs/msg/Clock"
+  gz_type_name: "gz.msgs.Clock"
+  direction: GZ_TO_ROS
+
+# --- limo_dif (diff drive) ---
+
+- ros_topic_name: "/limo_dif/cmd_vel"
+  gz_topic_name: "/model/limo_dif/cmd_vel"
+  ros_type_name: "geometry_msgs/msg/Twist"
+  gz_type_name: "gz.msgs.Twist"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/limo_dif/odom"
+  gz_topic_name: "/limo_dif/odom"
+  ros_type_name: "nav_msgs/msg/Odometry"
+  gz_type_name: "gz.msgs.Odometry"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/tf"
+  gz_topic_name: "/limo_dif/tf"
+  ros_type_name: "tf2_msgs/msg/TFMessage"
+  gz_type_name: "gz.msgs.Pose_V"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_dif/scan"
+  gz_topic_name: "/limo_dif/scan"
+  ros_type_name: "sensor_msgs/msg/LaserScan"
+  gz_type_name: "gz.msgs.LaserScan"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_dif/imu"
+  gz_topic_name: "/limo_dif/imu"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "gz.msgs.IMU"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_dif/limo_camera/image"
+  gz_topic_name: "/limo_dif/limo_camera/image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_dif/limo_camera/depth_image"
+  gz_topic_name: "/limo_dif/limo_camera/depth_image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_dif/limo_camera/camera_info"
+  gz_topic_name: "/limo_dif/limo_camera/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_dif/limo_camera/points"
+  gz_topic_name: "/limo_dif/limo_camera/points"
+  ros_type_name: "sensor_msgs/msg/PointCloud2"
+  gz_type_name: "gz.msgs.PointCloudPacked"
+  direction: GZ_TO_ROS
+
+# --- limo_acker (ackermann) ---
+
+- ros_topic_name: "/limo_acker/cmd_vel"
+  gz_topic_name: "/model/limo_acker/cmd_vel"
+  ros_type_name: "geometry_msgs/msg/Twist"
+  gz_type_name: "gz.msgs.Twist"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/limo_acker/odom"
+  gz_topic_name: "/limo_acker/odom"
+  ros_type_name: "nav_msgs/msg/Odometry"
+  gz_type_name: "gz.msgs.Odometry"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/tf"
+  gz_topic_name: "/limo_acker/tf"
+  ros_type_name: "tf2_msgs/msg/TFMessage"
+  gz_type_name: "gz.msgs.Pose_V"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_acker/scan"
+  gz_topic_name: "/limo_acker/scan"
+  ros_type_name: "sensor_msgs/msg/LaserScan"
+  gz_type_name: "gz.msgs.LaserScan"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_acker/imu"
+  gz_topic_name: "/limo_acker/imu"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "gz.msgs.IMU"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_acker/limo_camera/image"
+  gz_topic_name: "/limo_acker/limo_camera/image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_acker/limo_camera/depth_image"
+  gz_topic_name: "/limo_acker/limo_camera/depth_image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_acker/limo_camera/camera_info"
+  gz_topic_name: "/limo_acker/limo_camera/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_acker/limo_camera/points"
+  gz_topic_name: "/limo_acker/limo_camera/points"
+  ros_type_name: "sensor_msgs/msg/PointCloud2"
+  gz_type_name: "gz.msgs.PointCloudPacked"
+  direction: GZ_TO_ROS
+
+# --- limo_omni (holonomic) ---
+
+- ros_topic_name: "/limo_omni/cmd_vel"
+  gz_topic_name: "/limo_omni/cmd_vel"
+  ros_type_name: "geometry_msgs/msg/Twist"
+  gz_type_name: "gz.msgs.Twist"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/limo_omni/odom"
+  gz_topic_name: "/limo_omni/odom"
+  ros_type_name: "nav_msgs/msg/Odometry"
+  gz_type_name: "gz.msgs.Odometry"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/tf"
+  gz_topic_name: "/limo_omni/tf"
+  ros_type_name: "tf2_msgs/msg/TFMessage"
+  gz_type_name: "gz.msgs.Pose_V"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_omni/scan"
+  gz_topic_name: "/limo_omni/scan"
+  ros_type_name: "sensor_msgs/msg/LaserScan"
+  gz_type_name: "gz.msgs.LaserScan"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_omni/imu"
+  gz_topic_name: "/limo_omni/imu"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "gz.msgs.IMU"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_omni/limo_camera/image"
+  gz_topic_name: "/limo_omni/limo_camera/image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_omni/limo_camera/depth_image"
+  gz_topic_name: "/limo_omni/limo_camera/depth_image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_omni/limo_camera/camera_info"
+  gz_topic_name: "/limo_omni/limo_camera/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/limo_omni/limo_camera/points"
+  gz_topic_name: "/limo_omni/limo_camera/points"
+  ros_type_name: "sensor_msgs/msg/PointCloud2"
+  gz_type_name: "gz.msgs.PointCloudPacked"
+  direction: GZ_TO_ROS
+
+# Wheel spin: omni_wheel_spin_publisher.py (started alongside limo_omni)
+# derives these from /limo_omni/cmd_vel; each JointController in
+# limo_multi_omni_ignition.xacro consumes one on the gz side.
+
+- ros_topic_name: "/limo_omni/front_left_wheel/cmd_vel"
+  gz_topic_name: "/limo_omni/front_left_wheel/cmd_vel"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/limo_omni/front_right_wheel/cmd_vel"
+  gz_topic_name: "/limo_omni/front_right_wheel/cmd_vel"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/limo_omni/rear_left_wheel/cmd_vel"
+  gz_topic_name: "/limo_omni/rear_left_wheel/cmd_vel"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/limo_omni/rear_right_wheel/cmd_vel"
+  gz_topic_name: "/limo_omni/rear_right_wheel/cmd_vel"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ

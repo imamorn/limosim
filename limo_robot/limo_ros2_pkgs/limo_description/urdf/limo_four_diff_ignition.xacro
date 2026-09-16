@@ -1,0 +1,321 @@
+<?xml version="1.0"?>
+
+<robot name="limo_four_diff" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:include filename="$(find limo_description)/urdf/limo_xacro.xacro" />
+
+    <!-- Variables -->
+    <xacro:property name="M_PI" value="3.14159"/>
+
+    <!-- Vehicle Geometries -->
+    <xacro:property name="base_x_size" value="0.13" />
+    <xacro:property name="base_y_size" value="0.12" />
+    <xacro:property name="base_z_size" value="0.1" />
+
+    <xacro:property name="wheelbase" value="0.2"/>
+    <xacro:property name="track" value="0.13"/>
+    <xacro:property name="wheel_vertical_offset" value="-0.10" />
+    <xacro:property name="base_mass" value="2.1557"/>
+
+
+    <xacro:property name="wheel_length" value="0.001" />
+    <xacro:property name="wheel_radius" value="0.045" />
+  <link name="base_footprint"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0.0 0.0 0.15" rpy="0 0 0"/>
+  </joint>
+    <!-- Base link -->
+    <link name="base_link">
+        <visual>
+            <origin xyz="0 0 -0.15" rpy="0 0 1.57" />
+            <geometry>
+                <mesh filename="package://limo_description/meshes/limo_optimal.dae" scale="1 1 1"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+              <box size="${base_x_size} ${base_y_size} ${base_z_size}"/>
+          </geometry>
+        </collision>
+    </link>
+
+    <link name="inertial_link">
+        <inertial>
+            <origin xyz="0.0 0.0 0.0" />
+            <mass value="${base_mass}" />
+            <inertia ixx="0.0043832566666666675" ixy="0" ixz="0"
+                     iyy="0.004832360833333334" iyz="0"
+                     izz="0.005622784166666667" />
+        </inertial>
+    </link>
+
+    <joint name="inertial_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <parent link="base_link" />
+        <child link="inertial_link" />
+    </joint>
+
+    <xacro:limo_laser parent_prefix="base_link" frame_prefix="laser">
+        <origin xyz="0.103 0 -0.034" rpy="0 0 0"/>
+    </xacro:limo_laser>
+
+    <xacro:limo_depth_camera parent_prefix="base_link" frame_prefix="depth_camera">
+        <origin xyz="0.084 0 0.026" rpy="0 0 0"/>
+    </xacro:limo_depth_camera>
+
+    <xacro:limo_imu parent_prefix="base_link" frame_prefix="imu">
+        <origin xyz="0.0 0 -0.1" rpy="0 0 0"/>
+    </xacro:limo_imu>
+
+    <xacro:limo_wheel parent_prefix="base_link" wheel_prefix="front_left" reflect="1" fixed_on="true">
+        <origin xyz="${wheelbase/2} ${track/2} ${wheel_vertical_offset}" rpy="0 0  0" />
+    </xacro:limo_wheel>
+
+    <xacro:limo_wheel parent_prefix="base_link" wheel_prefix="front_right" reflect="-1" fixed_on="true">
+        <origin xyz="${wheelbase/2} ${-track/2} ${wheel_vertical_offset}" rpy="${M_PI} 0 0" />
+    </xacro:limo_wheel>
+
+    <xacro:limo_wheel parent_prefix="base_link" wheel_prefix="rear_left" reflect="1" fixed_on="true">
+        <origin xyz="${-wheelbase/2} ${track/2} ${wheel_vertical_offset}" rpy="0 0 0" />
+    </xacro:limo_wheel>
+
+    <xacro:limo_wheel parent_prefix="base_link" wheel_prefix="rear_right" reflect="-1" fixed_on="true">
+        <origin xyz="${-wheelbase/2} ${-track/2} ${wheel_vertical_offset}" rpy="${M_PI} 0 0" />
+    </xacro:limo_wheel>
+
+    <!-- Simulation Wheels for better movement -->
+    <xacro:limo_wheel parent_prefix="base_link" wheel_prefix="center_left" reflect="1" visual_on="false">
+        <origin xyz="0.0 ${track/2} ${wheel_vertical_offset}" rpy="0 0 0" />
+    </xacro:limo_wheel>
+
+    <xacro:limo_wheel parent_prefix="base_link" wheel_prefix="center_right" reflect="-1" visual_on="false">
+        <origin xyz="0.0 ${-track/2} ${wheel_vertical_offset}" rpy="${M_PI} 0 0" />
+    </xacro:limo_wheel>
+
+
+    <!-- gz-sim (Ignition) port; IMU sensors are rendered natively by the
+         gz-sim Imu system (loaded at the world level), no in-URDF ROS
+         plugin. Bridge the "imu" topic via ros_gz_bridge instead. -->
+    <gazebo reference="imu_link">
+    <gravity>true</gravity>
+    <sensor name="twr_imu" type="imu">
+      <always_on>true</always_on>
+      <update_rate>100</update_rate>
+      <visualize>true</visualize>
+      <topic>imu</topic>
+      <imu>
+        <orientation>
+          <x>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-3</stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-3</stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-3</stddev>
+            </noise>
+          </z>
+        </orientation>
+        <angular_velocity>
+          <x>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+            </noise>
+          </z>
+        </angular_velocity>
+        <linear_acceleration>
+          <x>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+            </noise>
+          </z>
+        </linear_acceleration>
+      </imu>
+    </sensor>
+</gazebo>
+
+    <!-- gz-sim port; type="ray" -> type="gpu_lidar", <ray> -> <lidar>,
+         no in-URDF plugin, bridge the "scan" topic via ros_gz_bridge. -->
+<gazebo reference="laser_link">
+    <sensor name="laser" type="gpu_lidar">
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <update_rate>10</update_rate>
+      <topic>scan</topic>
+      <lidar>
+        <scan>
+          <horizontal>
+            <samples>120</samples>
+            <resolution>1.000000</resolution>
+            <min_angle>-3.14159</min_angle>
+            <max_angle>3.14159</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.3</min>
+          <max>15.0</max>
+          <resolution>0.015</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </lidar>
+    </sensor>
+  </gazebo>
+
+    <gazebo reference="front_left_wheel_link">
+        <mu1>0</mu1>
+        <mu2>0</mu2>
+        <kp>10000000.0</kp>
+        <kd>1.0</kd>
+        <minDepth>0.01</minDepth>
+        <fdir1>1 0 0</fdir1>
+        <maxContacts value="4"/>
+    </gazebo>
+    <gazebo reference="front_right_wheel_link">
+        <mu1>0</mu1>
+        <mu2>0</mu2>
+        <kp>10000000.0</kp>
+        <kd>1.0</kd>
+        <minDepth>0.01</minDepth>
+        <fdir1>1 0 0</fdir1>
+        <maxContacts value="4"/>
+    </gazebo>
+    <gazebo reference="rear_left_wheel_link">
+        <mu1>0</mu1>
+        <mu2>0</mu2>
+        <kp>10000000.0</kp>
+        <kd>1.0</kd>
+        <minDepth>0.01</minDepth>
+        <fdir1>1 0 0</fdir1>
+        <maxContacts value="4"/>
+    </gazebo>
+    <gazebo reference="rear_right_wheel_link">
+        <mu1>0</mu1>
+        <mu2>0</mu2>
+        <kp>10000000.0</kp>
+        <kd>1.0</kd>
+        <minDepth>0.01</minDepth>
+        <fdir1>1 0 0</fdir1>
+        <maxContacts value="4"/>
+    </gazebo>
+
+    <gazebo reference="center_left_wheel_link">
+        <mu1>100</mu1>
+        <mu2>100</mu2>
+        <kp>10000000.0</kp>
+        <kd>1.0</kd>
+        <minDepth>0.01</minDepth>
+        <fdir1>1 0 0</fdir1>
+        <maxContacts value="4"/>
+    </gazebo>
+    <gazebo reference="center_right_wheel_link">
+        <mu1>100</mu1>
+        <mu2>100</mu2>
+        <kp>10000000.0</kp>
+        <kd>1.0</kd>
+        <minDepth>0.01</minDepth>
+        <fdir1>1 0 0</fdir1>
+        <maxContacts value="4"/>
+    </gazebo>
+
+    <!-- gz-sim port; libgazebo_ros_diff_drive.so -> the native DiffDrive
+         system plugin. It publishes odometry itself; bridge "cmd_vel",
+         "odom" and the odom "tf" via ros_gz_bridge. -->
+    <gazebo>
+      <plugin filename="ignition-gazebo-diff-drive-system" name="gz::sim::systems::DiffDrive">
+        <left_joint>center_left_wheel</left_joint>
+        <right_joint>center_right_wheel</right_joint>
+        <wheel_separation>0.172</wheel_separation>
+        <wheel_radius>0.045</wheel_radius>
+        <topic>cmd_vel</topic>
+        <odom_topic>odom</odom_topic>
+        <frame_id>odom</frame_id>
+        <child_frame_id>base_footprint</child_frame_id>
+        <odom_publish_frequency>50</odom_publish_frequency>
+        <max_wheel_torque>20</max_wheel_torque>
+        <max_linear_acceleration>1.0</max_linear_acceleration>
+        <min_linear_acceleration>-1.0</min_linear_acceleration>
+      </plugin>
+    </gazebo>
+
+
+    <link name="camera_depth_optical_frame"/>
+
+    <joint name="camera_depth_optical_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
+      <parent link="depth_camera_link" />
+      <child link="camera_depth_optical_frame" />
+    </joint>
+
+<!-- Optical frame is the frame in whihc the depth points are publish-->
+<!-- Reference frame is the frame rect to whihc we position teh optical frame-->
+<!-- gz-sim port; type="depth" -> type="rgbd_camera" (native color + depth +
+     points + camera_info, no in-URDF plugin). The Classic plugin's
+     multi-topic <ros><argument> remaps become ros_gz_bridge topic entries
+     for <topic>/image, /depth_image, /points, /camera_info. -->
+<gazebo reference="depth_camera_link">
+          <sensor name="sensor_camera" type="rgbd_camera">
+            <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+            <always_on>1</always_on>
+            <update_rate>10</update_rate>
+            <visualize>1</visualize>
+            <topic>limo_camera</topic>
+
+            <camera name="limo_camera">
+              <image>
+                <format>R8G8B8</format>
+                <width>400</width>
+                <height>400</height>
+              </image>
+              <clip>
+                <near>0.01</near>
+                <far>10.0</far>
+              </clip>
+              <optical_frame_id>depth_camera_link</optical_frame_id>
+            </camera>
+        </sensor>
+          </gazebo>
+
+
+</robot>

@@ -1,0 +1,209 @@
+<?xml version="1.0"?>
+<sdf version="1.7">
+  <!-- Twelve overlay lamps (n/s/e/w faces x red/yellow/green) only: no
+       pole/housing. This sits exactly on top of the traffic-light
+       pole/housing/lenses that are already baked into limo_stage1's mesh
+       (materials tr_l1..tr_l5 in limo_stage.dae) so the existing (unlit,
+       static) lens circles on all 4 faces get a controllable glow instead
+       of duplicating the housing geometry.
+       Positioning: the shared center (this model's origin) was extracted by
+       parsing limo_stage.dae's COLLADA scene graph for the "objcts" node's
+       transform matrix and the vertex bounding box of the tr_l1 (housing)
+       material group, then mapping that through limo_stage1's model.sdf
+       <scale>1.2 and stage_traffic_light.world's include pose (0.1 -0.5 0
+       yaw=pi) for limo_stage1. Per-face offset (0.0387m out from center)
+       is the housing head's front-face plane, measured from limo_stage.dae
+       (tr_l1 vertices, same transform chain: the most common face value at
+       0.0387; the baked lens discs are themselves shallow domes rising from
+       ~0.036 to 0.041). Each dome's flat base sits on that plane. Earlier
+       values (0.042/0.043) were leftovers from the sphere lamp's center and
+       the removed rim, and left the dome floating ~0.004m off the face.
+       Lamp shape: each lamp is just a "_dome" - meshes/lens_dome.stl, a
+       shallow spherical-cap mesh (generated at radius 0.014m by
+       scratchpad/gen_cap_stl.py, from an underlying radius-0.017m sphere
+       with a 0.004m-equivalent protrusion) with its flat base connected
+       directly to the housing surface (no separate flat "_rim" cylinder
+       body). A sphere primitive always has a mathematical back half that
+       depends on the housing hiding it, and leaked through the *opposite*
+       face's opening at steep viewing angles whenever that embedding
+       dipped deeper than the housing's actual wall thickness (see
+       conversation history); this mesh has no geometry behind its flat
+       base at all, so it can't do that regardless of wall thickness.
+       traffic_light_controller.cpp treats n/s as one road axis and e/w as
+       the crossing axis, showing red/yellow/green in sync within each pair
+       so opposing directions never both show green. -->
+  <model name="traffic_light">
+    <static>true</static>
+    <link name="lamp_link">
+
+      <visual name="lamp_red_n_dome">
+        <pose>0.0000 0.0387 0.1604 -1.5708 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://traffic_light/meshes/lens_dome.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.15 0.02 0.02 1</ambient>
+          <diffuse>0.15 0.02 0.02 1</diffuse>
+          <emissive>0.05 0 0 1</emissive>
+        </material>
+      </visual>
+
+      <visual name="lamp_red_s_dome">
+        <pose>0.0000 -0.0387 0.1604 1.5708 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://traffic_light/meshes/lens_dome.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.15 0.02 0.02 1</ambient>
+          <diffuse>0.15 0.02 0.02 1</diffuse>
+          <emissive>0.05 0 0 1</emissive>
+        </material>
+      </visual>
+
+      <visual name="lamp_red_e_dome">
+        <pose>0.0387 0.0000 0.1604 0 1.5708 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://traffic_light/meshes/lens_dome.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.15 0.02 0.02 1</ambient>
+          <diffuse>0.15 0.02 0.02 1</diffuse>
+          <emissive>0.05 0 0 1</emissive>
+        </material>
+      </visual>
+
+      <visual name="lamp_red_w_dome">
+        <pose>-0.0387 0.0000 0.1604 0 -1.5708 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://traffic_light/meshes/lens_dome.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.15 0.02 0.02 1</ambient>
+          <diffuse>0.15 0.02 0.02 1</diffuse>
+          <emissive>0.05 0 0 1</emissive>
+        </material>
+      </visual>
+
+      <visual name="lamp_yellow_n_dome">
+        <pose>0.0000 0.0387 0.1287 -1.5708 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://traffic_light/meshes/lens_dome.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.15 0.13 0.02 1</ambient>
+          <diffuse>0.15 0.13 0.02 1</diffuse>
+          <emissive>0.05 0.04 0 1</emissive>
+        </material>
+      </visual>
+
+      <visual name="lamp_yellow_s_dome">
+        <pose>0.0000 -0.0387 0.1287 1.5708 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://traffic_light/meshes/lens_dome.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.15 0.13 0.02 1</ambient>
+          <diffuse>0.15 0.13 0.02 1</diffuse>
+          <emissive>0.05 0.04 0 1</emissive>
+        </material>
+      </visual>
+
+      <visual name="lamp_yellow_e_dome">
+        <pose>0.0387 0.0000 0.1287 0 1.5708 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://traffic_light/meshes/lens_dome.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.15 0.13 0.02 1</ambient>
+          <diffuse>0.15 0.13 0.02 1</diffuse>
+          <emissive>0.05 0.04 0 1</emissive>
+        </material>
+      </visual>
+
+      <visual name="lamp_yellow_w_dome">
+        <pose>-0.0387 0.0000 0.1287 0 -1.5708 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://traffic_light/meshes/lens_dome.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.15 0.13 0.02 1</ambient>
+          <diffuse>0.15 0.13 0.02 1</diffuse>
+          <emissive>0.05 0.04 0 1</emissive>
+        </material>
+      </visual>
+
+      <visual name="lamp_green_n_dome">
+        <pose>0.0000 0.0387 0.0974 -1.5708 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://traffic_light/meshes/lens_dome.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.02 0.15 0.02 1</ambient>
+          <diffuse>0.02 0.15 0.02 1</diffuse>
+          <emissive>0 0.05 0 1</emissive>
+        </material>
+      </visual>
+
+      <visual name="lamp_green_s_dome">
+        <pose>0.0000 -0.0387 0.0974 1.5708 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://traffic_light/meshes/lens_dome.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.02 0.15 0.02 1</ambient>
+          <diffuse>0.02 0.15 0.02 1</diffuse>
+          <emissive>0 0.05 0 1</emissive>
+        </material>
+      </visual>
+
+      <visual name="lamp_green_e_dome">
+        <pose>0.0387 0.0000 0.0974 0 1.5708 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://traffic_light/meshes/lens_dome.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.02 0.15 0.02 1</ambient>
+          <diffuse>0.02 0.15 0.02 1</diffuse>
+          <emissive>0 0.05 0 1</emissive>
+        </material>
+      </visual>
+
+      <visual name="lamp_green_w_dome">
+        <pose>-0.0387 0.0000 0.0974 0 -1.5708 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://traffic_light/meshes/lens_dome.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.02 0.15 0.02 1</ambient>
+          <diffuse>0.02 0.15 0.02 1</diffuse>
+          <emissive>0 0.05 0 1</emissive>
+        </material>
+      </visual>
+
+    </link>
+  </model>
+</sdf>

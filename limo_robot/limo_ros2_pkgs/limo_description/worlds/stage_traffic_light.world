@@ -1,0 +1,78 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+  <!-- Same as stage.world, plus a traffic_light model: 12 overlay lamps
+       (red/yellow/green on all 4 faces, no pole/housing of their own)
+       positioned exactly on the lens openings of the traffic-light pole
+       already baked into limo_stage1's mesh. See
+       models/traffic_light/model.sdf for how that pose below was derived
+       from the mesh's own geometry, and traffic_light_controller.cpp for
+       the n/s vs e/w intersection cycle that switches the lamps' colors at
+       runtime. -->
+
+  <world name="default">
+    <!-- Required gz-sim systems: without these, the world simulates physics
+         but nothing steps/publishes sensor data (lidar, camera, IMU) and
+         GUI-side entity spawning/deletion won't work. -->
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics">
+    </plugin>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands">
+    </plugin>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster">
+    </plugin>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu">
+    </plugin>
+     <scene>
+      <ambient>0.8 0.8 0.8 1.0</ambient>
+      <background>0.5 0.5 0.5</background>
+      <grid>false</grid>
+    </scene>
+
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+
+    <include>
+      <uri>model://limo_stage1</uri>
+      <pose>0.1 -0.5 0 0 0 3.141592</pose>
+    </include>
+
+    <include>
+      <uri>model://background</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://traffic_light</uri>
+      <name>traffic_light</name>
+      <pose>-0.3257 -0.5701 0 0 0 0</pose>
+    </include>
+
+    <light name='user_point_light_1' type='point'>
+      <pose>0.0 0.0 2.0 0 0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>100</range>
+        <constant>0.05</constant>
+        <linear>0.0</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+  </world>
+</sdf>

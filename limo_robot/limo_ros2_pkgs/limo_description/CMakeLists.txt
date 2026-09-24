@@ -43,6 +43,17 @@ install(
   TARGETS main_steering_mirror
   DESTINATION lib/${PROJECT_NAME}
 )
+
+add_executable(traffic_light_controller src/traffic_light_controller.cpp)
+target_link_libraries(traffic_light_controller
+  ignition-transport11::ignition-transport11
+  ignition-msgs8::ignition-msgs8
+)
+ament_target_dependencies(traffic_light_controller rclcpp std_msgs)
+install(
+  TARGETS traffic_light_controller
+  DESTINATION lib/${PROJECT_NAME}
+)
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
